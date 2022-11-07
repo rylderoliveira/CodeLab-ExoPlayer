@@ -1,8 +1,8 @@
 apply from: "${project.rootDir}/common.gradle"
 
-def mediaVersion = "1.0.0-alpha03"
+def mediaVersion = "1.0.0-beta02"
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation "androidx.media3:media3-exoplayer:$mediaVersion"
     implementation "androidx.media3:media3-ui:$mediaVersion"
     implementation "androidx.media3:media3-exoplayer-dash:$mediaVersion"

@@ -17,6 +17,9 @@ package com.example.exoplayer
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.media3.common.MediaItem
+import androidx.media3.common.util.Util
+import androidx.media3.exoplayer.ExoPlayer
 import com.example.exoplayer.databinding.ActivityPlayerBinding
 
 /**
@@ -28,8 +31,68 @@ class PlayerActivity : AppCompatActivity() {
         ActivityPlayerBinding.inflate(layoutInflater)
     }
 
+    private var player: ExoPlayer? = null
+
+    private var playWhenReady = true
+    private var currentItem = 0
+    private var playbackPosition = 0L
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
+        initializePlayer()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (Util.SDK_INT > 23) {
+            initializePlayer()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if ((Util.SDK_INT <= 23 || player == null)) {
+            initializePlayer()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (Util.SDK_INT <= 23) {
+            releasePlayer()
+        }
+    }
+
+
+    override fun onStop() {
+        super.onStop()
+        if (Util.SDK_INT > 23) {
+            releasePlayer()
+        }
+    }
+
+    private fun initializePlayer() {
+        player = ExoPlayer.Builder(this)
+            .build()
+            .also { exoPlayer ->
+                viewBinding.videoView.player = exoPlayer
+
+                val mediaItem = MediaItem.fromUri(getString(R.string.media_url_mp3))
+                exoPlayer.setMediaItem(mediaItem)
+                exoPlayer.playWhenReady = playWhenReady
+                exoPlayer.seekTo(currentItem, playbackPosition)
+                exoPlayer.prepare()
+            }
+    }
+
+    private fun releasePlayer() {
+        player?.let { exoPlayer ->
+            playbackPosition = exoPlayer.currentPosition
+            currentItem = exoPlayer.currentMediaItemIndex
+            playWhenReady = exoPlayer.playWhenReady
+            exoPlayer.release()
+        }
+        player = null
     }
 }
